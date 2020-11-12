@@ -15,6 +15,13 @@ from creates import log, train_summary_writer, valid_summary_writer
 from create_tokenizer import tokenizer, model
 from local_tf_ops import *
 
+from pythonrouge.pythonrouge import Pythonrouge
+import warnings
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+warnings.filterwarnings('ignore')
+import re, string
+
 #policy = mixed_precision.Policy('mixed_float16')
 #mixed_precision.set_policy(policy)
 #optimizer = mixed_precision.LossScaleOptimizer(optimizer, loss_scale='dynamic')
@@ -176,6 +183,53 @@ for (step, (input_ids, input_mask, input_segment_ids, target_ids_, target_mask, 
               )
       log.info(evaluation_step.format(step+1, time.time() - start))
       log.info(checkpoint_details.format(step+1, ckpt_save_path))
+
+      #Print metrics:
+      pattern = re.compile('[\W_]+')
+      infer_ckpt = '75'
+      ckpt = tf.train.Checkpoint(model=model)
+      ckpt.restore(
+          'ckpt_dir/content/drive/My Drive/Text_summarization/BERT_text_summarisation/Summarization_inference_ckps/ckpt-' + infer_ckpt).expect_partial()
+
+      train_examples = examples['train']
+      train_dataset = map_batch_shuffle(train_examples, 100, split='train', shuffle=True, batch_size=1,
+                                        filter_off=False)
+      for (step, (input_ids, input_mask, input_segment_ids, target_ids_, target_mask, target_segment_ids)) in enumerate(
+              train_dataset):
+          sum_hyp = tokenizer.convert_ids_to_tokens([i for i in tf.squeeze(input_ids) if i not in [CLS_ID, SEP_ID, 0]])
+          ip_ids = tokenizer.encode(' '.join(sum_hyp))
+          preds_draft_summary, preds_refined_summary, refine_attention_dist = predict_using_beam_search(
+              tf.convert_to_tensor([ip_ids]),
+              refine_decoder_sampling_type='topktopp',
+              k=7,
+              p=0.8)
+          reference = tokenizer.convert_ids_to_tokens(
+              [i for i in tf.squeeze(target_ids_) if i not in [CLS_ID, SEP_ID, 0]])
+          reference = ' '.join(list(reference))
+          sum_hyp = tokenizer.convert_ids_to_tokens(
+              [i for i in tf.squeeze(preds_refined_summary) if i not in [CLS_ID, SEP_ID, 0]])
+          summary = convert_wordpiece_to_words(sum_hyp)
+          pattern = re.compile("[^A-Za-z ]")
+          summary = pattern.sub('', summary)
+          reference = pattern.sub('', reference)
+          pattern = re.compile("[ ]+")
+          summary = pattern.sub(' ', summary)
+          reference = pattern.sub(' ', reference)
+          rouge = Pythonrouge(summary_file_exist=False,
+                              summary=[[summary]], reference=[[[reference]]],
+                              n_gram=2, ROUGE_SU4=True, ROUGE_L=True,
+                              recall_only=True, stemming=True, stopwords=True,
+                              word_level=True, length_limit=True, length=50,
+                              use_cf=False, cf=95, scoring_formula='average',
+                              resampling=True, samples=1000, favor=True, p=0.5)
+          score = rouge.calc_score()
+          print(score)
+          score_avg = (score['ROUGE-1'] + score['ROUGE-2'] + score['ROUGE-L']) / 3
+          print(score_avg)
+          break
+
+
+
       if not monitor_run(
                          latest_ckpt, 
                          ckpt_save_path, 
