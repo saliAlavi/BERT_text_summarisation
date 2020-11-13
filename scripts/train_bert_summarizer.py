@@ -65,13 +65,14 @@ def train_step(input_ids,
   for (accumulator, grad) in zip(accumulators, gradients):
     accumulator.assign_add(grad)
   # apply the gradients and reset them to zero if the flag is true
-  if grad_accum_flag:
-    optimizer.apply_gradients(zip(accumulators, train_variables))
-    for accumulator in (accumulators):
-        accumulator.assign(tf.zeros_like(accumulator))
-  
-    train_loss(loss)
-    train_accuracy(target_ids_[:, :-1], refine_predictions)  
+  with strategy.scope():
+      if grad_accum_flag:
+        optimizer.apply_gradients(zip(accumulators, train_variables))
+        for accumulator in (accumulators):
+            accumulator.assign(tf.zeros_like(accumulator))
+
+        train_loss(loss)
+        train_accuracy(target_ids_[:, :-1], refine_predictions)
   return (target_ids_[:, :-1], refine_predictions)
 
 @tf.function(input_signature=val_step_signature)
