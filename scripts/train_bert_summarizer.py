@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
-
 import tensorflow as tf
 tf.random.set_seed(100)
 #tf.config.optimizer.set_jit(True)
@@ -56,7 +55,7 @@ with strategy.scope():
         loss = draft_summary_loss + refine_summary_loss
         loss = tf.reduce_mean(loss)
         #loss = optimizer.get_scaled_loss(loss)
-        gradients  = tape.gradient(loss, train_variables)
+      gradients  = tape.gradient(loss, train_variables)
       #gradients = optimizer.get_unscaled_gradients(gradients)
       # Initialize the shadow variables with same type as the gradients
       if not accumulators:
@@ -122,8 +121,15 @@ with strategy.scope():
         return (ckpt_manager, latest_ckpt)
 
 
+    @tf.function
+    def distributed_train_step(*dist_inputs):
+        per_replica_losses = strategy.run(train_step, args=(dist_inputs,))
+        return strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
+
 
     train_dataset, val_dataset, num_of_train_examples, _ = create_train_data()
+    val_dataset = strategy.experimental_distribute_dataset(val_dataset)
+    train_dataset = strategy.experimental_distribute_dataset(train_dataset)
     train_loss, train_accuracy = get_loss_and_accuracy()
     validation_loss, validation_accuracy = get_loss_and_accuracy()
     accumulators = []
@@ -141,18 +147,8 @@ with strategy.scope():
         refine_mask = tf.math.logical_not(tf.math.equal(target_ids_[:, :-1], 0))
         target_ids = label_smoothing(tf.one_hot(target_ids_, depth=config.input_vocab_size))
         grad_accum_flag = True if (step+1)%h_parms.accumulation_steps == 0 else False
-        target_x, refine_predictions=train_step(
-                    input_ids,
-                    input_mask,
-                    input_segment_ids,
-                    target_ids_,
-                    target_mask,
-                    target_segment_ids,
-                    target_ids,
-                    draft_mask,
-                    refine_mask,
-                    grad_accum_flag
-                    )
+        #target_x, refine_predictions=train_step(input_ids,input_mask,input_segment_ids, target_ids_,target_mask,target_segment_ids,target_ids,draft_mask,refine_mask, grad_accum_flag)
+        target_x, refine_predictions=distributed_train_step(input_ids,input_mask,input_segment_ids, target_ids_,target_mask,target_segment_ids,target_ids,draft_mask,refine_mask, grad_accum_flag)
         if grad_accum_flag:
           batch_run_check(
                         step+1,
