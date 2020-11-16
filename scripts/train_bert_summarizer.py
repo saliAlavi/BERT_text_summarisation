@@ -136,7 +136,7 @@ with strategy.scope():
     # if a checkpoint exists, restore the latest checkpoint.
     ck_pt_mgr, latest_ckpt = check_ckpt(file_path.checkpoint_path)
     total_steps = int(h_parms.epochs * (h_parms.accumulation_steps))
-    train_dataset = train_dataset.repeat(total_steps)
+    #train_dataset = train_dataset.repeat(total_steps)
     count=0
 
     for (step, (input_ids, input_mask, input_segment_ids, target_ids_, target_mask, target_segment_ids)) in enumerate(train_dataset):
