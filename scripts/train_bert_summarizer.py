@@ -56,7 +56,7 @@ with strategy.scope():
         loss = draft_summary_loss + refine_summary_loss
         loss = tf.reduce_mean(loss)
         #loss = optimizer.get_scaled_loss(loss)
-      gradients  = tape.gradient(loss, train_variables)
+        gradients  = tape.gradient(loss, train_variables)
       #gradients = optimizer.get_unscaled_gradients(gradients)
       # Initialize the shadow variables with same type as the gradients
       if not accumulators:
