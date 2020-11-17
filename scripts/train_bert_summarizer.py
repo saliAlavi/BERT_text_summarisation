@@ -245,16 +245,8 @@ with strategy.scope():
               print(score)
               score_avg = (score['ROUGE-1'] + score['ROUGE-2'] + score['ROUGE-L']) / 3
               print(score_avg)
-              break
 
 
 
-        if not monitor_run(
-                         latest_ckpt,
-                         ckpt_save_path,
-                         val_loss,
-                         val_acc,
-                         bert_score,
-                         rouge_score,
-                         valid_summary_writer,
-                         step+1):
+
+
