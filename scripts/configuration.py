@@ -5,7 +5,7 @@ from input_path import file_path
 hyp = {
      'copy_gen':True,
      'create_hist':False,             # create histogram of summary length and # of tokens per batch
-     'doc_length': 512,
+     'doc_length': 1024,
      'd_model': 768,                  # the projected word vector dimension
      'dff': 2048,                      # feed forward network hidden parameters
      'early_stop' : False,
