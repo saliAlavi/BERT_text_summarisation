@@ -140,7 +140,7 @@ with strategy.scope():
         target_ids = label_smoothing(tf.one_hot(target_ids_, depth=config.input_vocab_size))
         grad_accum_flag = True if (step+1)%h_parms.accumulation_steps == 0 else False
         #target_x, refine_predictions=train_step(input_ids,input_mask,input_segment_ids, target_ids_,target_mask,target_segment_ids,target_ids,draft_mask,refine_mask, grad_accum_flag)
-        inputs=(input_ids,input_mask,input_segment_ids, target_ids_,target_mask,target_segment_ids,target_ids,draft_mask,refine_mask, grad_accum_flag)
+        inputs=[input_ids,input_mask,input_segment_ids, target_ids_,target_mask,target_segment_ids,target_ids,draft_mask,refine_mask, grad_accum_flag]
         target_x, refine_predictions=distributed_train_step(inputs)
         if grad_accum_flag:
           batch_run_check(
