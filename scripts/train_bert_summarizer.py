@@ -123,7 +123,7 @@ with strategy.scope():
 
     @tf.function
     def distributed_train_step(*dist_inputs):
-        per_replica_losses = strategy.run(train_step, args=(dist_inputs,))
+        per_replica_losses = strategy.run(train_step, args=(*dist_inputs,))
         return strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
 
 
