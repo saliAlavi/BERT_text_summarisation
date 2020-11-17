@@ -145,8 +145,10 @@ def create_train_data(num_samples_to_train = config.num_examples_to_train, shuff
         )
 
         other_ds = 'validation' if 'validation' in examples else 'test'
-        train_examples = examples['train']
-        valid_examples = examples[other_ds]
+        # train_examples = examples['train']
+        # valid_examples = examples[other_ds]
+        train_examples = examples
+        valid_examples = examples
         train_buffer_size = metadata.splits['train'].num_examples
         valid_buffer_size = metadata.splits[other_ds].num_examples
     else:
