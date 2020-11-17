@@ -258,4 +258,3 @@ with strategy.scope():
                          rouge_score,
                          valid_summary_writer,
                          step+1):
-        break
