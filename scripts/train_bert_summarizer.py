@@ -66,7 +66,7 @@ with strategy.scope():
 
         train_loss(loss)
         train_accuracy(target_ids_[:, :-1], refine_predictions)
-      return (target_ids_[:, :-1], refine_predictions)
+      return (loss,target_ids_[:, :-1], refine_predictions)
 
     @tf.function(input_signature=val_step_signature)
     def val_step(input_ids,
@@ -116,8 +116,8 @@ with strategy.scope():
 
     @tf.function
     def distributed_train_step(dist_inputs):
-        per_replica_losses = strategy.run(train_step, args=(dist_inputs,))
-        return strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
+        per_replica_losses,target_ids_ , refine_predictions = strategy.run(train_step, args=(dist_inputs,))
+        return strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None),target_ids_ , refine_predictions
 
 
     train_dataset, val_dataset, num_of_train_examples, _ = create_train_data()
