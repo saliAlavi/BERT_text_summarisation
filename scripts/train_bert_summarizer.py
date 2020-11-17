@@ -31,16 +31,8 @@ strategy = tf.distribute.MirroredStrategy()
 
 with strategy.scope():
     @tf.function(input_signature=train_step_signature)
-    def train_step(input_ids,
-                   input_mask,
-                   input_segment_ids,
-                   target_ids_,
-                   target_mask,
-                   target_segment_ids,
-                   target_ids,
-                   draft_mask,
-                   refine_mask,
-                   grad_accum_flag):
+    def train_step(inputs):
+      input_ids, input_mask, input_segment_ids, target_ids_, target_mask, target_segment_ids, target_ids, draft_mask, refine_mask, grad_accum_flag = inputs
       with tf.GradientTape() as tape:
 
         (draft_predictions, draft_attention_weights,
@@ -122,8 +114,8 @@ with strategy.scope():
 
 
     @tf.function
-    def distributed_train_step(*dist_inputs):
-        per_replica_losses = strategy.run(train_step, args=(*dist_inputs,))
+    def distributed_train_step(dist_inputs):
+        per_replica_losses = strategy.run(train_step, args=(dist_inputs,))
         return strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
 
 
@@ -148,7 +140,7 @@ with strategy.scope():
         target_ids = label_smoothing(tf.one_hot(target_ids_, depth=config.input_vocab_size))
         grad_accum_flag = True if (step+1)%h_parms.accumulation_steps == 0 else False
         #target_x, refine_predictions=train_step(input_ids,input_mask,input_segment_ids, target_ids_,target_mask,target_segment_ids,target_ids,draft_mask,refine_mask, grad_accum_flag)
-        target_x, refine_predictions=distributed_train_step(input_ids,input_mask,input_segment_ids, target_ids_,target_mask,target_segment_ids,target_ids,draft_mask,refine_mask, grad_accum_flag)
+        target_x, refine_predictions=distributed_train_step((input_ids,input_mask,input_segment_ids, target_ids_,target_mask,target_segment_ids,target_ids,draft_mask,refine_mask, grad_accum_flag))
         if grad_accum_flag:
           batch_run_check(
                         step+1,
