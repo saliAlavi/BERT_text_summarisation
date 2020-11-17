@@ -159,6 +159,7 @@ with strategy.scope():
                         model
                         )
         eval_frequency = ((step+1) * h_parms.batch_size) % config.eval_after
+        print('end if iter')
         if eval_frequency == 0:
           predicted = (tokenizer.decode([i for i in tf.squeeze(tf.argmax(refine_predictions,axis=-1)) if i not in [101,102,0]]))
           target = (tokenizer.decode([i for i in tf.squeeze(target_x) if i not in [101,102,0]]))
