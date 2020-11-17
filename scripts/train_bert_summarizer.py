@@ -5,7 +5,7 @@ tf.random.set_seed(100)
 #tf.config.optimizer.set_jit(True)
 import time
 #from tensorflow.keras.mixed_precision import experimental as mixed_precision
-from preprocess import create_train_data
+from preprocess import create_train_data, map_batch_shuffle,*
 from hyper_parameters import h_parms
 from configuration import config
 from metrics import optimizer, loss_function, label_smoothing, get_loss_and_accuracy, tf_write_summary, monitor_run
@@ -13,8 +13,9 @@ from input_path import file_path
 from creates import log, train_summary_writer, valid_summary_writer
 from create_tokenizer import tokenizer, model
 from local_tf_ops import *
-
+from numpy.random import randint
 from pythonrouge.pythonrouge import Pythonrouge
+import tensorflow_datasets as tfds
 import warnings
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -131,9 +132,26 @@ with strategy.scope():
     total_steps = int(h_parms.epochs * (h_parms.accumulation_steps))
     #train_dataset = train_dataset.repeat(total_steps)
     count=0
-
+    ds_train_size = 287113
+    length = 1
+    start = randint(ds_train_size - length, size=1)[0]
+    train_buffer_size = 287113
     for (step, (input_ids, input_mask, input_segment_ids, target_ids_, target_mask, target_segment_ids)) in enumerate(train_dataset):
       if step >= config.start_from_batch:
+          sum_hyp = tokenizer.convert_ids_to_tokens([i for i in tf.squeeze(input_ids) if i not in [CLS_ID, SEP_ID, 0]])
+          ip_ids = tokenizer.encode(' '.join(sum_hyp))
+          if len(ip_ids) >= 512:
+              while len(ip_ids) >= 512:
+                  start = randint(ds_train_size - length, size=1)[0]
+                  examples, metadata = tfds.load('cnn_dailymail', with_info=True, as_supervised=True,
+                                                 data_dir='/content/drive/My Drive/Text_summarization/cnn_dataset',
+                                                 builder_kwargs={"version": "3.0.0"},
+                                                 split=tfds.core.ReadInstruction('train', from_=start, to=start + length,
+                                                                                 unit='abs'))
+                  train_examples = examples
+                  train_dataset = map_batch_shuffle(train_examples, train_buffer_size, split='train', shuffle=True, batch_size=1, filter_off=False)
+                  (input_ids, input_mask, input_segment_ids, target_ids_, target_mask, target_segment_ids) =iter(train_dataset)
+
         count+=1
         start=time.time()
         draft_mask = tf.math.logical_not(tf.math.equal(target_ids_[:, 1:], 0))
