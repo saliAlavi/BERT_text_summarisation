@@ -5,7 +5,8 @@ tf.random.set_seed(100)
 #tf.config.optimizer.set_jit(True)
 import time
 #from tensorflow.keras.mixed_precision import experimental as mixed_precision
-from preprocess import create_train_data, map_batch_shuffle,*
+from preprocess import create_train_data, map_batch_shuffle
+from preprocess import *
 from hyper_parameters import h_parms
 from configuration import config
 from metrics import optimizer, loss_function, label_smoothing, get_loss_and_accuracy, tf_write_summary, monitor_run
