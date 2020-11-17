@@ -17,7 +17,9 @@ train_step_signature = [
                       tf.TensorSpec(shape=(None, None), dtype=tf.bool),
                       tf.TensorSpec(shape=(None), dtype=tf.bool)
                       ]
-
+train_step_signature_2 = [
+                      tf.TensorSpec(shape=(12)),
+                      ]
 val_step_signature = [
                       tf.TensorSpec(shape=(None, None), dtype=tf.int32),
                       tf.TensorSpec(shape=(None, None), dtype=tf.int32),
