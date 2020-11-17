@@ -30,7 +30,8 @@ tf.debugging.set_log_device_placement(True)
 strategy = tf.distribute.MirroredStrategy()
 
 with strategy.scope():
-    @tf.function(input_signature=train_step_signature_2)
+    #@tf.function(input_signature=train_step_signature)
+    @tf.function
     def train_step(inputs):
       input_ids, input_mask, input_segment_ids, target_ids_, target_mask, target_segment_ids, target_ids, draft_mask, refine_mask, grad_accum_flag = inputs
       with tf.GradientTape() as tape:
