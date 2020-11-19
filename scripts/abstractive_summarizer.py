@@ -162,7 +162,17 @@ class AbstractiveSummarization(tf.keras.Model):
         _, combined_mask, dec_padding_mask = create_masks(input_ids, target_ids[:, :-1])
 
         # (batch_size, seq_len, d_bert)
-        enc_output = self.bert_model(input_ids)[0]
+        #enc_output = self.bert_model(input_ids)[0]
+        max_length=1024
+        enc_output=self.bert_model.batch_encode_plus(
+            input_ids.tolist(),
+            add_special_tokens=True,
+            max_length=max_length,
+            return_attention_mask=True,
+            return_token_type_ids=True,
+            pad_to_max_length=True,
+            return_tensors="tf",
+        )
 
         # (batch_size, seq_len, vocab_len), _
         draft_logits, draft_attention_dist = self.draft_summary(
