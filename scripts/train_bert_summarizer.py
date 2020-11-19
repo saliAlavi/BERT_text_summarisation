@@ -142,12 +142,8 @@ with strategy.scope():
             sum_hyp = tokenizer.convert_ids_to_tokens([i for i in tf.squeeze(input_ids) if i not in [CLS_ID, SEP_ID, 0]])
             ip_ids = tokenizer.encode(' '.join(sum_hyp))
             if len(ip_ids) >= 512:
-                input_ids=input_ids[:512]
-                ip_ids=ip_ids[:512]
-                input_mask=input_mask[:512]
-                input_segment_ids=input_segment_ids[:512]
-                print(len(ip_ids))
-                print(len(target_ids_))
+                print("Too much long!!!")
+                continue
                 # while len(ip_ids) >= 512:
                 #     start = randint(ds_train_size - length, size=1)[0]
                 #     examples, metadata = tfds.load('cnn_dailymail', with_info=True, as_supervised=True,
