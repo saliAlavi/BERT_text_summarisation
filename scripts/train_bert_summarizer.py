@@ -147,6 +147,7 @@ with strategy.scope():
                 input_mask=input_mask[:512]
                 input_segment_ids=input_segment_ids[:512]
                 print(len(ip_ids))
+                print(len(target_ids_))
                 # while len(ip_ids) >= 512:
                 #     start = randint(ds_train_size - length, size=1)[0]
                 #     examples, metadata = tfds.load('cnn_dailymail', with_info=True, as_supervised=True,
