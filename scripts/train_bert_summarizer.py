@@ -141,7 +141,7 @@ with strategy.scope():
         if step >= config.start_from_batch:
             sum_hyp = tokenizer.convert_ids_to_tokens([i for i in tf.squeeze(input_ids) if i not in [CLS_ID, SEP_ID, 0]])
             ip_ids = tokenizer.encode(' '.join(sum_hyp))
-            if len(ip_ids) >= 512 or len(input_mask)>512 or len(input_segment_ids)>512:
+            if len(input_ids) >= 512 or len(input_mask)>512 or len(input_segment_ids)>512:
                 print("Too much long!!!")
                 continue
                 # while len(ip_ids) >= 512:
