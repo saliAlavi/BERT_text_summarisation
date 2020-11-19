@@ -142,6 +142,7 @@ with strategy.scope():
             sum_hyp = tokenizer.convert_ids_to_tokens([i for i in tf.squeeze(input_ids) if i not in [CLS_ID, SEP_ID, 0]])
             ip_ids = tokenizer.encode(' '.join(sum_hyp))
             if len(ip_ids) >= 512:
+                input_ids=input_ids[:512]
                 ip_ids=ip_ids[:512]
                 input_mask=input_mask[:512]
                 input_segment_ids=input_segment_ids[:512]
