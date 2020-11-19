@@ -142,7 +142,7 @@ with strategy.scope():
         #if step >= config.start_from_batch:
         sum_hyp = tokenizer.convert_ids_to_tokens([i for i in tf.squeeze(input_ids) if i not in [CLS_ID, SEP_ID, 0]])
         ip_ids = tokenizer.encode(' '.join(sum_hyp))
-        if len(input_ids) >= 512 or len(input_mask)>512 or len(input_segment_ids)>512:
+        if len(input_ids) >= 512 or len(input_mask)>512 or len(input_segment_ids)>512 or len(ip_ids>512):
             print("Too much long!!!")
             continue
             # while len(ip_ids) >= 512:
@@ -158,7 +158,6 @@ with strategy.scope():
         if len(target_ids_) >= 512 or len(target_mask)>512 or len(target_segment_ids)>512:
             print('maggoty bread')
             continue
-        print(np.where(input_ids.numpy())[0].max())
         count+=1
         start=time.time()
         draft_mask = tf.math.logical_not(tf.math.equal(target_ids_[:, 1:], 0))
