@@ -157,9 +157,7 @@ with strategy.scope():
         if len(target_ids_) >= 512 or len(target_mask)>512 or len(target_segment_ids)>512:
             print('maggoty bread')
             continue
-        print(max(input_ids))
-        print(max(input_mask))
-        print(max(input_segment_ids))
+        print(input_ids.to_numpy().max)
         count+=1
         start=time.time()
         draft_mask = tf.math.logical_not(tf.math.equal(target_ids_[:, 1:], 0))
