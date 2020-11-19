@@ -16,7 +16,6 @@ model = AbstractiveSummarization(
                                 )
 
 tokenizer = BertTokenizer.from_pretrained(config.pretrained_bert_model)
-tokenizer.enable_truncation(512)
 
 def create_dataframe(path, num_examples):
     df = pd.read_csv(path)

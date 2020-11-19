@@ -138,26 +138,28 @@ with strategy.scope():
     start = randint(ds_train_size - length, size=1)[0]
     train_buffer_size = 287113
     for (step, (input_ids, input_mask, input_segment_ids, target_ids_, target_mask, target_segment_ids)) in enumerate(train_dataset):
-        if step >= config.start_from_batch:
-            sum_hyp = tokenizer.convert_ids_to_tokens([i for i in tf.squeeze(input_ids) if i not in [CLS_ID, SEP_ID, 0]])
-            ip_ids = tokenizer.encode(' '.join(sum_hyp))
-            if len(input_ids) >= 512 or len(input_mask)>512 or len(input_segment_ids)>512:
-                print("Too much long!!!")
-                continue
-                # while len(ip_ids) >= 512:
-                #     start = randint(ds_train_size - length, size=1)[0]
-                #     examples, metadata = tfds.load('cnn_dailymail', with_info=True, as_supervised=True,
-                #                                  data_dir='/content/drive/My Drive/Text_summarization/cnn_dataset',
-                #                                  builder_kwargs={"version": "3.0.0"},
-                #                                  split=tfds.core.ReadInstruction('train', from_=start, to=start + length,
-                #                                                                  unit='abs'))
-                #     train_examples = examples
-                #     train_dataset = map_batch_shuffle(train_examples, train_buffer_size, split='train', shuffle=True, batch_size=1, filter_off=False)
-                #     (input_ids, input_mask, input_segment_ids, target_ids_, target_mask, target_segment_ids) =iter(train_dataset)
-            if len(target_ids_) >= 512 or len(target_mask)>512 or len(target_segment_ids)>512:
-                print('maggoty bread')
-                continue
-
+        #if step >= config.start_from_batch:
+        sum_hyp = tokenizer.convert_ids_to_tokens([i for i in tf.squeeze(input_ids) if i not in [CLS_ID, SEP_ID, 0]])
+        ip_ids = tokenizer.encode(' '.join(sum_hyp))
+        if len(input_ids) >= 512 or len(input_mask)>512 or len(input_segment_ids)>512:
+            print("Too much long!!!")
+            continue
+            # while len(ip_ids) >= 512:
+            #     start = randint(ds_train_size - length, size=1)[0]
+            #     examples, metadata = tfds.load('cnn_dailymail', with_info=True, as_supervised=True,
+            #                                  data_dir='/content/drive/My Drive/Text_summarization/cnn_dataset',
+            #                                  builder_kwargs={"version": "3.0.0"},
+            #                                  split=tfds.core.ReadInstruction('train', from_=start, to=start + length,
+            #                                                                  unit='abs'))
+            #     train_examples = examples
+            #     train_dataset = map_batch_shuffle(train_examples, train_buffer_size, split='train', shuffle=True, batch_size=1, filter_off=False)
+            #     (input_ids, input_mask, input_segment_ids, target_ids_, target_mask, target_segment_ids) =iter(train_dataset)
+        if len(target_ids_) >= 512 or len(target_mask)>512 or len(target_segment_ids)>512:
+            print('maggoty bread')
+            continue
+        print(max(input_ids))
+        print(max(input_mask))
+        print(max(input_segment_ids))
         count+=1
         start=time.time()
         draft_mask = tf.math.logical_not(tf.math.equal(target_ids_[:, 1:], 0))
