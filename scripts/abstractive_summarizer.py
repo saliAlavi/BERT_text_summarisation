@@ -1,5 +1,5 @@
 import tensorflow as tf
-from transformers import TFBertModel
+from transformers import TFBertModel, BertConfig
 from tensorflow.keras.initializers import Constant
 from transformer import create_masks, Decoder
 from creates import log
@@ -45,8 +45,9 @@ def tile_and_mask_diagonal(x, mask_with):
 
 def _embedding_from_bert():
 
-  log.info("Extracting pretrained word embeddings weights from BERT")  
-  vocab_of_BERT = TFBertModel.from_pretrained(config.pretrained_bert_model, trainable=False)
+  log.info("Extracting pretrained word embeddings weights from BERT")
+  config = BertConfig(max_position_embeddings=1024)
+  vocab_of_BERT = TFBertModel.from_pretrained(config.pretrained_bert_model, trainable=False, config=config)
   embedding_matrix = vocab_of_BERT.get_weights()[0]
   log.info(f"Embedding matrix shape '{embedding_matrix.shape}'")
   return (embedding_matrix, vocab_of_BERT)
@@ -162,17 +163,8 @@ class AbstractiveSummarization(tf.keras.Model):
         _, combined_mask, dec_padding_mask = create_masks(input_ids, target_ids[:, :-1])
 
         # (batch_size, seq_len, d_bert)
-        #enc_output = self.bert_model(input_ids)[0]
-        max_length=1024
-        enc_output=self.bert_model.batch_encode_plus(
-            input_ids.tolist(),
-            add_special_tokens=True,
-            max_length=max_length,
-            return_attention_mask=True,
-            return_token_type_ids=True,
-            pad_to_max_length=True,
-            return_tensors="tf",
-        )
+        enc_output = self.bert_model(input_ids)[0]
+
 
         # (batch_size, seq_len, vocab_len), _
         draft_logits, draft_attention_dist = self.draft_summary(
