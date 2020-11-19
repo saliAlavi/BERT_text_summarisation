@@ -22,6 +22,7 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 warnings.filterwarnings('ignore')
 import re, string
+import numpy as np
 
 #policy = mixed_precision.Policy('mixed_float16')
 #mixed_precision.set_policy(policy)
@@ -157,7 +158,7 @@ with strategy.scope():
         if len(target_ids_) >= 512 or len(target_mask)>512 or len(target_segment_ids)>512:
             print('maggoty bread')
             continue
-        print(input_ids.numpy().max())
+        print(np.where(input_ids.numpy()).max())
         count+=1
         start=time.time()
         draft_mask = tf.math.logical_not(tf.math.equal(target_ids_[:, 1:], 0))
