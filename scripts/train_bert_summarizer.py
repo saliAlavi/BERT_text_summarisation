@@ -140,34 +140,37 @@ with strategy.scope():
     train_buffer_size = 287113
     for (step, (input_ids, input_mask, input_segment_ids, target_ids_, target_mask, target_segment_ids)) in enumerate(train_dataset):
         #if step >= config.start_from_batch:
-        sum_hyp = tokenizer.convert_ids_to_tokens([i for i in tf.squeeze(input_ids) if i not in [CLS_ID, SEP_ID, 0]])
-        ip_ids = tokenizer.encode(' '.join(sum_hyp))
-        if len(input_ids) >= 512 or len(input_mask)>512 or len(input_segment_ids)>512 or len(ip_ids)>512:
-            print("Too much long!!!")
-            continue
-            # while len(ip_ids) >= 512:
-            #     start = randint(ds_train_size - length, size=1)[0]
-            #     examples, metadata = tfds.load('cnn_dailymail', with_info=True, as_supervised=True,
-            #                                  data_dir='/content/drive/My Drive/Text_summarization/cnn_dataset',
-            #                                  builder_kwargs={"version": "3.0.0"},
-            #                                  split=tfds.core.ReadInstruction('train', from_=start, to=start + length,
-            #                                                                  unit='abs'))
-            #     train_examples = examples
-            #     train_dataset = map_batch_shuffle(train_examples, train_buffer_size, split='train', shuffle=True, batch_size=1, filter_off=False)
-            #     (input_ids, input_mask, input_segment_ids, target_ids_, target_mask, target_segment_ids) =iter(train_dataset)
-        if len(target_ids_) >= 512 or len(target_mask)>512 or len(target_segment_ids)>512:
-            print('maggoty bread')
-            continue
-        print(np.where(input_mask.numpy()[0])[0].max())
-        count+=1
-        start=time.time()
-        draft_mask = tf.math.logical_not(tf.math.equal(target_ids_[:, 1:], 0))
-        refine_mask = tf.math.logical_not(tf.math.equal(target_ids_[:, :-1], 0))
-        target_ids = label_smoothing(tf.one_hot(target_ids_, depth=config.input_vocab_size))
-        grad_accum_flag = True if (step+1)%h_parms.accumulation_steps == 0 else False
-        #target_x, refine_predictions=train_step(input_ids,input_mask,input_segment_ids, target_ids_,target_mask,target_segment_ids,target_ids,draft_mask,refine_mask, grad_accum_flag)
-        inputs=[input_ids,input_mask,input_segment_ids, target_ids_,target_mask,target_segment_ids,target_ids,draft_mask,refine_mask, grad_accum_flag]
-        target_x, refine_predictions=distributed_train_step(inputs)
+        try:
+            sum_hyp = tokenizer.convert_ids_to_tokens([i for i in tf.squeeze(input_ids) if i not in [CLS_ID, SEP_ID, 0]])
+            ip_ids = tokenizer.encode(' '.join(sum_hyp))
+            if len(input_ids) >= 512 or len(input_mask)>512 or len(input_segment_ids)>512 or len(ip_ids)>512:
+                print("Too much long!!!")
+                continue
+                # while len(ip_ids) >= 512:
+                #     start = randint(ds_train_size - length, size=1)[0]
+                #     examples, metadata = tfds.load('cnn_dailymail', with_info=True, as_supervised=True,
+                #                                  data_dir='/content/drive/My Drive/Text_summarization/cnn_dataset',
+                #                                  builder_kwargs={"version": "3.0.0"},
+                #                                  split=tfds.core.ReadInstruction('train', from_=start, to=start + length,
+                #                                                                  unit='abs'))
+                #     train_examples = examples
+                #     train_dataset = map_batch_shuffle(train_examples, train_buffer_size, split='train', shuffle=True, batch_size=1, filter_off=False)
+                #     (input_ids, input_mask, input_segment_ids, target_ids_, target_mask, target_segment_ids) =iter(train_dataset)
+            if len(target_ids_) >= 512 or len(target_mask)>512 or len(target_segment_ids)>512:
+                print('maggoty bread')
+                continue
+            print(np.where(input_mask.numpy()[0])[0].max())
+            count+=1
+            start=time.time()
+            draft_mask = tf.math.logical_not(tf.math.equal(target_ids_[:, 1:], 0))
+            refine_mask = tf.math.logical_not(tf.math.equal(target_ids_[:, :-1], 0))
+            target_ids = label_smoothing(tf.one_hot(target_ids_, depth=config.input_vocab_size))
+            grad_accum_flag = True if (step+1)%h_parms.accumulation_steps == 0 else False
+            #target_x, refine_predictions=train_step(input_ids,input_mask,input_segment_ids, target_ids_,target_mask,target_segment_ids,target_ids,draft_mask,refine_mask, grad_accum_flag)
+            inputs=[input_ids,input_mask,input_segment_ids, target_ids_,target_mask,target_segment_ids,target_ids,draft_mask,refine_mask, grad_accum_flag]
+            target_x, refine_predictions=distributed_train_step(inputs)
+        except Exception as e:
+            print(e)
         if grad_accum_flag:
           batch_run_check(
                         step+1,
