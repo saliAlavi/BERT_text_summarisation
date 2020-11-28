@@ -46,8 +46,8 @@ def tile_and_mask_diagonal(x, mask_with):
 def _embedding_from_bert():
 
   log.info("Extracting pretrained word embeddings weights from BERT")
-  configs=BertConfig(max_position_embeddings=1024)
-  vocab_of_BERT = TFBertModel.from_pretrained(config.pretrained_bert_model, trainable=False,config=configs)
+  #configs=BertConfig(max_position_embeddings=1024)
+  vocab_of_BERT = TFBertModel.from_pretrained(config.pretrained_bert_model, trainable=False)
   embedding_matrix = vocab_of_BERT.get_weights()[0]
   log.info(f"Embedding matrix shape '{embedding_matrix.shape}'")
   return (embedding_matrix, vocab_of_BERT)
