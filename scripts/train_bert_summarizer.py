@@ -174,7 +174,12 @@ with strategy.scope():
             #     continue
 
             print(np.where(input_mask.numpy()[0])[0].max())
-            print(len(input_ids[0]))
+            print('input length',len(input_ids[0]))
+            print('input mask length',len(input_mask[0]))
+            print('input segment length', len(input_segment_ids[0]))
+            print('target length', len(target_ids_[0]))
+            print('target mask length', len(target_mask[0]))
+            print('target segment length', len(target_segment_ids[0]))
             count+=1
             start=time.time()
             draft_mask = tf.math.logical_not(tf.math.equal(target_ids_[:, 1:], 0))
