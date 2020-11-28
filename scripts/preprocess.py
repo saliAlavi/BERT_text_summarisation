@@ -141,7 +141,7 @@ def create_train_data(num_samples_to_train = config.num_examples_to_train, shuff
             with_info=True,
             as_supervised=True,
             data_dir='/content/drive/My Drive/Text_summarization/cnn_dataset',
-            builder_kwargs={"version": "3.0.0"},split = tfds.core.ReadInstruction('train', from_=1, to=50, unit='abs')
+            builder_kwargs={"version": "3.0.0"},split = tfds.core.ReadInstruction('train', from_=50, to=100, unit='abs')
         )
 
         other_ds = 'validation' if 'validation' in examples else 'test'
