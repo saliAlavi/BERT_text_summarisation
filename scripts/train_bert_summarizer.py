@@ -266,8 +266,5 @@ with strategy.scope():
                   print(score)
                   score_avg = (score['ROUGE-1'] + score['ROUGE-2'] + score['ROUGE-L']) / 3
                   print(score_avg)
-
-
-
-
-
+        except Exception as e:
+            print(e)
