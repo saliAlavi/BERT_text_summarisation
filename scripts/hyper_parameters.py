@@ -8,7 +8,7 @@ for device in gpu_devices:
 
 hyp = {
 	 'accumulation_steps': 36,                                                                                   
-	 'batch_size': 1,
+	 'batch_size': 2,
 	 'beam_sizes': [2, 3, 4],        	     # Used only during inference                                                 
 	 'combined_metric_weights': [0.4, 0.3, 0.3], #(bert_score, rouge, validation accuracy)
 	 'dropout_rate': 0.0,
