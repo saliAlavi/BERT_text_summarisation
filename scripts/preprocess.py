@@ -137,7 +137,7 @@ def create_train_data(num_samples_to_train = config.num_examples_to_train, shuff
         #                                builder_kwargs={"version": "3.0.0"}
         #                               )
         length=100
-        start=np.random.randint(0,2e5-length)[0]
+        start=np.random.randint(2e5-length,1)[0]
         examples, metadata = tfds.load(
             config.tfds_name,
             with_info=True,
