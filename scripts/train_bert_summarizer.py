@@ -173,7 +173,7 @@ with strategy.scope():
             #     continue
 
             print(np.where(input_mask.numpy()[0])[0].max())
-            print(len(input_ids))
+            print(len(input_ids[0]))
             count+=1
             start=time.time()
             draft_mask = tf.math.logical_not(tf.math.equal(target_ids_[:, 1:], 0))
