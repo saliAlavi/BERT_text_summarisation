@@ -143,7 +143,7 @@ with strategy.scope():
         try:
             sum_hyp = tokenizer.convert_ids_to_tokens([i for i in tf.squeeze(input_ids) if i not in [CLS_ID, SEP_ID, 0]])
             ip_ids = tokenizer.encode(' '.join(sum_hyp))
-            if len(ip_ids[0]) >= 512:
+            if len(ip_ids) >= 512:
                 start = randint(ds_train_size - length, size=1)[0]
                 examples, metadata = tfds.load('cnn_dailymail', with_info=True, as_supervised=True,
                                                data_dir='/content/drive/My Drive/Text_summarization/cnn_dataset',
@@ -173,6 +173,7 @@ with strategy.scope():
             #     continue
 
             print(np.where(input_mask.numpy()[0])[0].max())
+            print(len(input_ids))
             count+=1
             start=time.time()
             draft_mask = tf.math.logical_not(tf.math.equal(target_ids_[:, 1:], 0))
