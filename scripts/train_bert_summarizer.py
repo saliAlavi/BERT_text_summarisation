@@ -154,7 +154,7 @@ with strategy.scope():
                 # train_dataset = map_batch_shuffle(train_examples, train_buffer_size, split='train', shuffle=True,
                 #                                   batch_size=1, filter_off=False)
                 # repeat = True
-                print(len(input_ids[0]))
+                print(len(ip_ids))
                 continue
             # if len(input_ids) >= 512 or len(input_mask)>=512 or len(input_segment_ids)>=512 or len(ip_ids)>=512:
             #     print("Too much long!!!")
